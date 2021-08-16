@@ -41,6 +41,7 @@ public final class FiFoMatcher implements MatchingAlgorithm {
 
     List<Trade> trades = new ArrayList<>();
 
+    if (buys.isEmpty()) { return null; }
     Order buy = buys.get(0);
     int quantityNeeded = buy.quantity();
 

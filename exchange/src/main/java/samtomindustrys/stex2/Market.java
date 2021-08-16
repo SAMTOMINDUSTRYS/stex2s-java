@@ -12,6 +12,10 @@ public class Market {
     this.repo = repo;
   }
 
+  public List<Order> getOrdersByStock(Stock stock) {
+    return repo.getOrdersByStock(stock);
+  } 
+
   /**
    * Accept an order for this market. Sell orders are just listed,
    * Buy orders are fulfilled via the chosen fulfillment  */

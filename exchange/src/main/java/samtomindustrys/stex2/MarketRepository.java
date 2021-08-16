@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public interface MarketRepository {
-
+  OrderBook orderBookForStock(Stock stock);
   List<Order> getOrdersByStock(Stock stock);
 
   List<Order> getAllOrders();

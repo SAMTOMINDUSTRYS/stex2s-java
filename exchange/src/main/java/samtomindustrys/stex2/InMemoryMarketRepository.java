@@ -3,10 +3,8 @@ package samtomindustrys.stex2;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,13 +13,24 @@ public class InMemoryMarketRepository implements MarketRepository {
   private final Map<Stock, OrderBook> market= new HashMap<>();
 
   @Override
+  public OrderBook orderBookForStock(Stock stock) {
+    OrderBook ob = market.getOrDefault(stock, null);
+
+    if (ob == null) {
+      ob = new OrderBook();
+      market.put(stock, ob);
+    }
+    return ob;
+  }
+
+  @Override
   public List<Order> getSells(Stock stock) {
     OrderBook ob = market.getOrDefault(stock, null);
 
     if (ob == null) {
       return null;
     }
-    return new ArrayList<Order>(ob.sells); 
+    return new ArrayList<Order>(ob.getSells()); 
   }
 
   @Override
@@ -31,7 +40,7 @@ public class InMemoryMarketRepository implements MarketRepository {
     if (ob == null) {
       return null;
     }
-    return new ArrayList<Order>(ob.buys);
+    return new ArrayList<Order>(ob.getBuys());
   }
 
   @Override
@@ -70,7 +79,7 @@ public class InMemoryMarketRepository implements MarketRepository {
     if (orderBook == null) {
       return null;
     }
-    return Stream.concat(orderBook.buys.stream(), orderBook.sells.stream())
+    return Stream.concat(orderBook.getBuys().stream(), orderBook.getSells().stream())
       .collect(Collectors.toList());
   }
 
@@ -78,11 +87,11 @@ public class InMemoryMarketRepository implements MarketRepository {
   public List<Order> getAllOrders() {
     return market.values()
       .stream()
-      .flatMap(o -> Stream.concat(o.buys.stream(), o.sells.stream()))
+      .flatMap(o -> Stream.concat(o.getBuys().stream(), o.getSells().stream()))
       .collect(Collectors.toList());
   }
 
-  private class OrderBook {
+  /*private class OrderBook {
     private Set<Order> buys;
     private Set<Order> sells;
 
@@ -105,7 +114,7 @@ public class InMemoryMarketRepository implements MarketRepository {
     public void add(Order o) {
       getSet(o).add(o);
     }
-  }
+  }*/
 
   @Override
   public String toString() {
@@ -133,7 +142,7 @@ public class InMemoryMarketRepository implements MarketRepository {
         stringBuilder.append("["+key.ticker()+"]");
         return market.get(key);
       })
-    .flatMap(ob -> Stream.concat(ob.buys.stream().sorted(buyOrder),ob.sells.stream().sorted(sellOrder)))
+    .flatMap(ob -> Stream.concat(ob.getBuys().stream().sorted(buyOrder),ob.getSells().stream().sorted(sellOrder)))
     .forEach(order -> stringBuilder.append("\t"+order));
 
     return stringBuilder.toString();
