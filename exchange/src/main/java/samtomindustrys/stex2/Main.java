@@ -3,6 +3,8 @@ package samtomindustrys.stex2;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -94,16 +96,24 @@ public class Main {
     newOrder(gson, gson.toJson(filler));
     System.out.println("============\n"+market);
 
+    //TODO: the sorting was not working when generating big decimals using a float? Why is this.?
     Random rand = new Random();
-    long start = System.currentTimeMillis();
     int i = 0;
-    for (i = 0; i < 5_000; i++) {
+    List<Order> orders = new ArrayList<>(20_000);
+    for (i = 0; i < 20_000; i++) {
+      Stock stk = (rand.nextBoolean()?sti:aber);
       Side s = (rand.nextBoolean()?Side.BUY:Side.SELL);
-      Order o = new Order(s, sti, 1+rand.nextInt(1_000), new BigDecimal(rand.nextFloat()*1000), Instant.now(), "", "","");
+      Order o = new Order(s, stk, 1+rand.nextInt(1_000), new BigDecimal(rand.nextInt(10000)), Instant.now(), "", "","");
+      orders.add(o);
+      //System.out.println("============\n"+market);
+    }
+    long start = System.currentTimeMillis();
+    for (Order o : orders) {
       market.accept(o);
     }
     long end = System.currentTimeMillis();
     System.out.println("Time for "+i+"orders = "+(end - start)+ "ms");
+    System.out.println("order book size: " + market.size(sti));
     
     //System.out.println("============\n"+market);
   }

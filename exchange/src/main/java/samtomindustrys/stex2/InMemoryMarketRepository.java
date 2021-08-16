@@ -118,7 +118,7 @@ public class InMemoryMarketRepository implements MarketRepository {
 
   @Override
   public String toString() {
-    final Comparator<Order> buyOrder = (o1, o2) -> {
+    /*final Comparator<Order> buyOrder = (o1, o2) -> {
       int price = o2.price().compareTo(o1.price());
       if (price == 0) {
         return o1.timestamp().compareTo(o2.timestamp());
@@ -132,7 +132,7 @@ public class InMemoryMarketRepository implements MarketRepository {
         return o1.timestamp().compareTo(o2.timestamp());
       }
       return price;
-    };
+    };*/
 
     StringBuilder stringBuilder = new StringBuilder();
 
@@ -142,7 +142,7 @@ public class InMemoryMarketRepository implements MarketRepository {
         stringBuilder.append("["+key.ticker()+"]");
         return market.get(key);
       })
-    .flatMap(ob -> Stream.concat(ob.getBuys().stream().sorted(buyOrder),ob.getSells().stream().sorted(sellOrder)))
+    .flatMap(ob -> Stream.concat(ob.getBuys().stream(),ob.getSells().stream()))
     .forEach(order -> stringBuilder.append("\t"+order));
 
     return stringBuilder.toString();

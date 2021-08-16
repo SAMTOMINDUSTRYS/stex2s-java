@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public final class FiFoMatcher implements MatchingAlgorithm {
 
-  private static final Comparator<Order> buyOrder;
+ /* private static final Comparator<Order> buyOrder;
   private static final Comparator<Order> sellOrder;
 
   static {
@@ -26,23 +28,28 @@ public final class FiFoMatcher implements MatchingAlgorithm {
       return price;
     };
   }
-
+*/
 
   @Override
-  public List<Trade> fulfill(List<Order> buys, List<Order> sells, Order o) {
+  public List<Trade> fulfill(OrderBook book, Order o) {
+
+    // TODO: Check the price of the new order and fail early if:
+    // * Its a buy and the price is less than the current best buy
+    // * Its a sell snd the p;rice is more than the current best sell
+    Set<Order> buys = book.getBuys();
+    Set<Order> sells = book.getSells();
+    
     // if this is a sell but there are no buys or this is a buy and there are no 
     if ( ((buys == null || buys.isEmpty())  && o.side().equals(Side.SELL)) ||
         ((sells == null || sells.isEmpty()) && o.side().equals(Side.BUY))) {
       return null;
         }
 
-    Collections.sort(buys, buyOrder);
-    Collections.sort(sells, sellOrder);
-
     List<Trade> trades = new ArrayList<>();
 
     if (buys.isEmpty()) { return null; }
-    Order buy = buys.get(0);
+    Order buy = ((TreeSet<Order>)buys).first();
+
     int quantityNeeded = buy.quantity();
 
     for (Order sell: sells) {

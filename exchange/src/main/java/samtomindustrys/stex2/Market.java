@@ -16,22 +16,22 @@ public class Market {
     return repo.getOrdersByStock(stock);
   } 
 
+  public int size(Stock stock) {
+    return repo.orderBookForStock(stock).getBuys().size() + repo.orderBookForStock(stock).getSells().size() ;
+  }
+
   /**
    * Accept an order for this market. Sell orders are just listed,
    * Buy orders are fulfilled via the chosen fulfillment  */
   public void accept(Order o) {
 
-    //Add the order to the market
-    repo.addOrder(o);
-    
-    //Get the buys/sells for this stock
-    List<Order> buys = repo.getBuys(o.stock());
-    List<Order> sells = repo.getSells(o.stock());
-
     List<Trade> result = null;
+    
+    OrderBook orderBook = repo.orderBookForStock(o.stock());
 
+    orderBook.add(o);
     // Run the matching algorithm
-    while((result = algo.fulfill(buys, sells,o)) != null) {
+    while((result = algo.fulfill(orderBook, o)) != null) {
       
       // Delete or amend sells 
       for (Trade trade : result) {
@@ -44,14 +44,16 @@ public class Market {
 
       // Remove buy
       repo.deleteOrder(result.get(0).buy());
-      buys = repo.getBuys(o.stock());
-      sells = repo.getSells(o.stock());
+      //buys = repo.getBuys(o.stock());
+      //sells = repo.getSells(o.stock());
 
     }
-  } 
+  }
+
 
   @Override
   public String toString() {
+
     return repo.toString();
   }
 }
